@@ -1,145 +1,105 @@
-# 🧠 BraTS 2020: Brain Tumor Segmentation, Data Generation & Survival Prediction
+# 🧠 Brain Tumor Segmentation & Synthetic Data Generation using 3D U-Net and CVAE
 
-This repository implements a full pipeline for **brain tumor segmentation**, **synthetic MRI generation**, and **overall survival prediction** using the **BraTS 2020 dataset**. It combines deep learning (3D U-Net & CVAE) with traditional ML (Random Forest/XGBoost) for comprehensive glioma analysis.
+<p align="center">
+  <img src="assets/brain_digital.jpg" alt="Digital Brain" width="500"/>
+</p>
 
-* **3D U-Net** for tumor segmentation
-* **3D CVAE** for data generation
-* **Survival Prediction** using extracted radiomic and volumetric features,
-
----
-
-## 📌 Features
-
-* ✅ **3D U-Net** for volumetric tumor segmentation (WT, TC, ET)
-* ✅ **3D CVAE** to generate synthetic 3D MRI volumes conditioned on tumor masks
-* ✅ **Survival prediction model** using radiomic, volumetric, and clinical features
-* ✅ Designed for low-data settings with augmentation + transfer learning support
-* ✅ Evaluation metrics and visualizations for all stages
+This project implements a **3D U-Net** for brain tumor segmentation on the **BraTS 2020** dataset and a **3D Conditional Variational Autoencoder (CVAE)** for generating realistic synthetic brain MRI volumes. The goal is to enhance tumor segmentation accuracy and robustness, especially in data-scarce scenarios.
 
 ---
 
-## 🗂️ Project Structure
+## 🔍 Project Objective
 
-```
-brats20-3dunet-3dautoencoder/
-├── data/
-│   ├── BraTS2020_TrainingData/
-│   └── processed/
-├── models/
-│   ├── unet3d.py            # U-Net architecture
-│   ├── cvae3d.py            # Conditional 3D VAE
-│   └── survival_model.py    # ML pipeline for survival
-├── utils/
-│   ├── dataloader.py
-│   ├── metrics.py
-│   └── preprocessing.py
-├── notebooks/
-│   └── brats20-main.ipynb
-├── requirements.txt
-└── README.md
-```
+- 🧬 **Segment brain tumors** from multi-modal MRI volumes.
+- ⚗️ **Generate synthetic 3D brain scans** using a CVAE conditioned on tumor masks.
+- 📈 **Augment training data** with realistic samples to improve model generalization.
 
 ---
 
-## 📥 Dataset
+## 📂 Dataset
 
-* **Source**: [BraTS 2020 Challenge](https://www.med.upenn.edu/cbica/brats2020/data.html)
-* **Modalities**: FLAIR, T1, T1ce, T2
-* **Tasks**: Tumor segmentation (labels: WT, TC, ET), overall survival (OS) prediction
-
----
-
-## 📈 Tasks & Models
-
-### 🧠 1. Tumor Segmentation (3D U-Net)
-
-```python
-from models.unet3d import UNet3D
-model = UNet3D(in_channels=4, out_channels=3)
-```
-
-* Inputs: 4 MRI modalities (240×240×155)
-* Output: Multiclass segmentation (WT, TC, ET)
-* Loss: Dice + Cross-Entropy
-* Metrics: Dice coefficient (per tumor class)
-
-### 📊 2. Synthetic Data Generation (3D CVAE)
-
-```python
-from models.cvae3d import CVAE3D
-model = CVAE3D(input_shape=(240, 240, 96), num_classes=3, latent_dim=256)
-```
-
-* Conditioned on: Tumor masks
-* Output: 3D MRI-like volumes for augmentation
-* Applications: Boost segmentation performance in low-data regimes
-
-### ⚰️ 3. Survival Prediction
-
-```python
-from models.survival_model import train_survival_model
-```
-
-* Features: Tumor volume (from segmentation), location stats, patient age
-* Models: Random Forest, XGBoost, Ridge Regression
-* Labels: Survival days (regression) or class (short/mid/long survivor)
-* Evaluation: MAE, R², or classification metrics (F1, accuracy)
+- **Source**: [BraTS 2020 Challenge](https://www.med.upenn.edu/cbica/brats2020/data.html)
+- **Modalities**: T1, T1CE, T2, FLAIR
+- **Ground Truth**: Segmentation masks with labels — edema, enhancing tumor, and necrotic tumor
 
 ---
 
-## 🧪 Evaluation
+## 🏗️ Model Architectures
 
-| Task                | Metric                    |
-| ------------------- | ------------------------- |
-| Segmentation        | Dice (WT, TC, ET)         |
-| Generation          | Reconstruction loss, SSIM |
-| Survival Prediction | MAE, Accuracy, F1 Score   |
+### 🔹 3D U-Net
+- Encoder-decoder structure with skip connections
+- Input shape: `240x240x96x4`
+- Loss: Dice coefficient + Cross Entropy
+- Output: 3 tumor classes
 
----
+### 🔸 3D CVAE
+- Conditional latent space with 3D convolutions
+- Conditioned on tumor class masks
+- Trained to reconstruct and generate MRI volumes
 
-## 📊 Visualizations
-
-* MRI volume slices with overlayed segmentations
-* Synthetic MRI vs. real MRI comparisons
-* Survival prediction feature importance
-* Confusion matrix for survival class prediction
-
----
-
-## 💻 Getting Started
-
-### ✅ Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-Or manually:
-
-```bash
-pip install torch torchvision nibabel scikit-learn pandas xgboost matplotlib opencv-python tqdm
----
-
-## 💡 Applications
-
-* Data-efficient tumor segmentation
-* Simulated MRI scans for data augmentation
-* Predictive modeling for patient outcomes
-* Clinical decision support for brain tumor prognosis
+<p align="center">
+  <img src="assets/brain_highlighted.jpg" alt="Brain with Tumor" width="400"/>
+  <br/>
+  <em>Figure: Visualizing tumor regions from segmentation output</em>
+</p>
 
 ---
 
-## 📌 Future Improvements
+## 💻 Tech Stack
 
-* Patch-wise training for large-volume scalability
-* Attention U-Net variants
-* GAN-based realistic synthesis
-* Integration with clinical metadata (resection status, MGMT, etc.)
+| Component       | Details                             |
+|----------------|-------------------------------------|
+| Framework      | TensorFlow / Keras                  |
+| Language       | Python                              |
+| Visualization  | Matplotlib, Seaborn                 |
+| Data Handling  | nibabel, NumPy                      |
+| Metrics        | Dice Score, Accuracy, Reconstruction Loss |
+
+---
+
+## 🚀 How to Run
+
+1. Clone the repository  
+   ```bash
+   git clone https://github.com/yourusername/brats-segmentation-cvae.git
+   cd brats-segmentation-cvae
+    ```
+2. Install dependencies
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Download and preprocess dataset**
+
+   * Download BraTS 2020 NIfTI files
+   * Preprocess to normalize, crop/pad, and stack modalities
+
+4. **Run the notebook**
+   Launch `brats20-3dunet-3dautoencoder.ipynb` to train and evaluate models.
+
+---
+
+## 📊 Results
+
+* ✅ 3D U-Net achieved high Dice coefficients on validation set.
+* 🧪 CVAE produced realistic MRI volumes conditioned on tumor class.
+* 🧠 Synthetic data improved model generalization in limited-data settings.
+
+---
+
+## 📌 Future Enhancements
+
+* [ ] Integrate GAN-based data generation
+* [ ] Deploy using FastAPI + Streamlit for real-time demo
+* [ ] Evaluate on BraTS 2021/2023 datasets
+
 
 ---
 
 ## 📄 License
 
-This project is for academic research under the MIT License.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
+
